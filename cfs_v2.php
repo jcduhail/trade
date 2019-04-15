@@ -35,7 +35,13 @@ use Logger;
         $this->gains_graph = new Graph(gains_log);
         $this->data = new Data();
 	}
-		
+
+	public function test(){
+	    $content = file_get_contents(market_log);
+	    $array_market = json_decode($content);
+	    print count($array_market);
+	}
+	
 	public function __destruct(){
         $this->close();
 		 
@@ -82,7 +88,7 @@ use Logger;
 		$myBalances = $this->get_balances();
 		
 		$myMoney = $myBalances[money];
-		print 'mymoney = '.$myMoney.PHP_EOL;
+		//print 'mymoney = '.$myMoney.PHP_EOL;
 		
 		$myMoneyIn = $myBalances[money_in];
 		
@@ -92,16 +98,15 @@ use Logger;
 		// Determine if need to recalibrate the threshold
 		$average_price = $this->{theshold_method}($myLastTrade[0]['type'], $market);
 		
-		print 'average price = '.$average_price.PHP_EOL;
+		//print 'average price = '.$average_price.PHP_EOL;
 		
         //$this->graph->saveValue(array($market['highestBid'],$market['lowestAsk'],$average_price));
 		
 		
 		if($myLastTrade[0]['type']=='buy'){
             $delta = $this->{delta_method}('buy',$average_price,$market['highestBid']);
-            print 'delta = '.$delta.PHP_EOL;
             $rate = number_format($average_price+$delta,nb_decimal);
-            print 'rate = '.$rate.PHP_EOL;
+            //print 'rate = '.$rate.PHP_EOL;
             if($myLastTrade[0]['rate']==$rate) $rate = $rate+0.01;
 
 			if(max_loss == 0 || $myLastTrade[0]['rate']-$rate < max_loss){
@@ -116,7 +121,7 @@ use Logger;
 				$this->sell(money.'_'.money_in, $myLastTrade[0]['rate'] - max_loss, $myMoney);
 			}
 			
-			print 'MyMoneyIn = '.$myMoneyIn.PHP_EOL;
+			//print 'MyMoneyIn = '.$myMoneyIn.PHP_EOL;
 			
 			// If i still have BTC, it means i can put a BUY order on it 		
 			if($myMoneyIn > 0.01){
@@ -127,7 +132,8 @@ use Logger;
 				
 				// If the current lowest ask is lower than our calculated rate, we buy at the lowest rate
 				if($market['lowestAsk']<$rate) $rate = $market['lowestAsk'];
-				$amount = intval($myMoneyIn / $rate);
+				$amount = number_format(($myMoneyIn / $rate),nb_decimal);
+				$amount = number_format($amount - number_format(0.0025*$amount,nb_decimal),2);
 				$this->buy(money.'_'.money_in, $rate, $amount);
 			}
 			
@@ -148,7 +154,9 @@ use Logger;
 				}
 			}*/
 			
-			$amount = intval($myMoneyIn / $rate);
+			$amount = number_format(($myMoneyIn / $rate),nb_decimal);
+			$amount = number_format($amount - number_format(0.0025*$amount,nb_decimal),2);
+			//print 'rate ='.$rate.';myMoneyIn = '.$myMoneyIn.'; amount = '.$amount;
 			if($myMoneyIn>0.01){
 				$this->buy(money.'_'.money_in, $rate, $amount);
 			}

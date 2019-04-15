@@ -96,7 +96,7 @@ class bitstamp extends Exchange {
                         'open_orders/{pair}/',
                         'cancel_order/',
                         'cancel_all_orders/',
-                        'buy/{pair}',
+                        'buy/{pair}/',
                         'buy/market/{pair}/',
                         'sell/{pair}/',
                         'sell/market/{pair}/',
@@ -338,6 +338,7 @@ class bitstamp extends Exchange {
                     $response = $this->privatePostBuyPair (array_merge ($order, $params));
                     break;
                 case 'market':
+                    $order['price'] = $price;
                     $response = $this->privatePostBuyMarketPair (array_merge ($order, $params));
                     break;
                 default:
